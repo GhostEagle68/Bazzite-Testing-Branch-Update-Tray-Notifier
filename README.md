@@ -18,12 +18,44 @@ to keep checking the GitHub releases page by hand.
 
 ## Requirements
 
-Installed via pacman/dnf as applicable to your setup:
+Needs PyGObject/GTK3 bindings, cairo bindings (for drawing the "new
+release" badge), and libayatana-appindicator (the tray icon library).
+Bazzite's base image already ships most of these — `libayatana-appindicator`
+is usually the only one actually missing.
 
-- `python-gobject` (PyGObject / GTK bindings)
-- `gtk3`
-- `python-cairo`
-- `libayatana-appindicator` (Arch) or `libayatana-appindicator-gtk3` (Fedora/Bazzite)
+**Check what's already installed:**
+
+On Bazzite/Fedora (the host):
+
+```
+rpm -q python3-gobject python3-cairo gtk3 libayatana-appindicator-gtk3
+```
+
+On Arch (e.g. inside a distrobox):
+
+```
+pacman -Q python-gobject python-cairo gtk3 libayatana-appindicator
+```
+
+Anything printed as "not installed" or "package ... was not found" needs
+installing.
+
+**Install on Bazzite/Fedora**, without a reboot — `--apply-live` patches the
+package into the running system immediately, while still layering it
+permanently so it survives future updates:
+
+```
+sudo rpm-ostree install --apply-live python3-gobject python3-cairo gtk3 libayatana-appindicator-gtk3
+```
+
+**Install on Arch:**
+
+```
+sudo pacman -S python-gobject python-cairo gtk3 libayatana-appindicator
+```
+
+If `libayatana-appindicator` isn't in your Arch repos, the AUR package
+`libappindicator-gtk3` is the fallback (`yay -S libappindicator-gtk3`).
 
 ## Install
 
