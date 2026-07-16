@@ -43,20 +43,51 @@ sudo rpm-ostree install --apply-live python3-gobject python3-cairo gtk3 libayata
 
 ## Install
 
+**Option 1: clone the repo**
+
 ```
 git clone https://github.com/GhostEagle68/bazzite-testing-notifier.git
 cd bazzite-testing-notifier
 ./install.sh
 ```
 
-This copies `bazzite-testing-tray.py` to `~/.local/bin`, installs the
-systemd user service to `~/.config/systemd/user`, and enables it.
+**Option 2: download a release**
+
+Grab the latest release archive from the
+[Releases page](https://github.com/GhostEagle68/bazzite-testing-notifier/releases),
+extract it, then run the same installer:
+
+```
+tar xf bazzite-testing-notifier-*.tar.gz   # or unzip the .zip, whichever you grabbed
+cd bazzite-testing-notifier-*
+./install.sh
+```
+
+Either way, this copies `bazzite-testing-tray.py` to `~/.local/bin`,
+installs the systemd user service to `~/.config/systemd/user`, and enables
+it.
 
 ## Files
 
 - `bazzite-testing-tray.py` — the tray application itself
 - `bazzite-testing-tray.service` — systemd user service definition
 - `install.sh` — installer
+
+## Releases
+
+Each [release](https://github.com/GhostEagle68/bazzite-testing-notifier/releases)
+is tagged from `main` (e.g. `v0.1.0`) with auto-generated release notes
+summarizing what changed since the previous tag:
+
+```
+git checkout main
+git pull
+gh release create v0.1.0 --generate-notes
+```
+
+`--generate-notes` builds the changelog from merged PR titles/commits since
+the last tag automatically, so there's no changelog file to hand-maintain —
+just write clear commit/PR titles going in.
 
 ## Development / testing hooks
 
