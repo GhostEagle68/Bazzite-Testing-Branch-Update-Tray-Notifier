@@ -28,7 +28,7 @@ Installed via pacman/dnf as applicable to your setup:
 ## Install
 
 ```
-git clone <this repo>
+git clone https://github.com/GhostEagle68/bazzite-testing-notifier.git
 cd bazzite-testing-notifier
 ./install.sh
 ```
