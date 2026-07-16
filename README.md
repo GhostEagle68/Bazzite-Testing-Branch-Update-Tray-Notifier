@@ -20,7 +20,8 @@ to keep checking the GitHub releases page by hand.
 
 Needs PyGObject/GTK3 bindings, cairo bindings (for drawing the "new
 release" badge), and libayatana-appindicator (the tray icon library).
-Bazzite's base image already ships most of these — `libayatana-appindicator`
+Most desktop-oriented distros already ship the GTK3/PyGObject/cairo pieces
+by default — libayatana-appindicator (or its GObject Introspection typelib)
 is usually the only one actually missing.
 
 **Check what's already installed:**
@@ -35,6 +36,18 @@ On Arch (e.g. inside a distrobox):
 
 ```
 pacman -Q python-gobject python-cairo gtk3 libayatana-appindicator
+```
+
+On Debian/Ubuntu:
+
+```
+dpkg -l python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1
+```
+
+On openSUSE:
+
+```
+rpm -q python3-gobject python3-cairo typelib-1_0-Gtk-3_0 typelib-1_0-AyatanaAppIndicator3-0_1
 ```
 
 Anything printed as "not installed" or "package ... was not found" needs
@@ -56,6 +69,18 @@ sudo pacman -S python-gobject python-cairo gtk3 libayatana-appindicator
 
 If `libayatana-appindicator` isn't in your Arch repos, the AUR package
 `libappindicator-gtk3` is the fallback (`yay -S libappindicator-gtk3`).
+
+**Install on Debian/Ubuntu:**
+
+```
+sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1
+```
+
+**Install on openSUSE:**
+
+```
+sudo zypper install python3-gobject python3-cairo typelib-1_0-Gtk-3_0 typelib-1_0-AyatanaAppIndicator3-0_1
+```
 
 ## Install
 
