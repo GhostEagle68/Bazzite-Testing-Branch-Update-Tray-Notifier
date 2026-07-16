@@ -18,14 +18,12 @@ to keep checking the GitHub releases page by hand.
 
 ## Requirements
 
-This is Bazzite-specific — it checks your actual booted `rpm-ostree`
-version against ublue-os/bazzite's releases, so it only makes sense on
-Bazzite itself. Needs PyGObject/GTK3 bindings, cairo bindings (for drawing
+Needs PyGObject/GTK3 bindings, cairo bindings (for drawing
 the "new release" badge), and libayatana-appindicator (the tray icon
 library). Bazzite's base image already ships most of these —
 `libayatana-appindicator` is usually the only one actually missing.
 
-**Check what's already installed** (on the Bazzite host):
+**Check what's already installed**:
 
 ```
 rpm -q python3-gobject python3-cairo gtk3 libayatana-appindicator-gtk3
