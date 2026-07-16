@@ -18,69 +18,41 @@ to keep checking the GitHub releases page by hand.
 
 ## Requirements
 
-Needs PyGObject/GTK3 bindings, cairo bindings (for drawing the "new
-release" badge), and libayatana-appindicator (the tray icon library).
-Most desktop-oriented distros already ship the GTK3/PyGObject/cairo pieces
-by default — libayatana-appindicator (or its GObject Introspection typelib)
-is usually the only one actually missing.
+This is Bazzite-specific — it checks your actual booted `rpm-ostree`
+version against ublue-os/bazzite's releases, so it only makes sense on
+Bazzite itself. Needs PyGObject/GTK3 bindings, cairo bindings (for drawing
+the "new release" badge), and libayatana-appindicator (the tray icon
+library). Bazzite's base image already ships most of these —
+`libayatana-appindicator` is usually the only one actually missing.
 
-**Check what's already installed:**
-
-On Bazzite/Fedora (the host):
+**Check what's already installed** (on the Bazzite host):
 
 ```
 rpm -q python3-gobject python3-cairo gtk3 libayatana-appindicator-gtk3
 ```
 
-On Arch (e.g. inside a distrobox):
+Anything printed as "not installed" needs installing.
 
-```
-pacman -Q python-gobject python-cairo gtk3 libayatana-appindicator
-```
-
-On Debian/Ubuntu:
-
-```
-dpkg -l python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1
-```
-
-On openSUSE:
-
-```
-rpm -q python3-gobject python3-cairo typelib-1_0-Gtk-3_0 typelib-1_0-AyatanaAppIndicator3-0_1
-```
-
-Anything printed as "not installed" or "package ... was not found" needs
-installing.
-
-**Install on Bazzite/Fedora**, without a reboot — `--apply-live` patches the
-package into the running system immediately, while still layering it
-permanently so it survives future updates:
+**Install, without a reboot** — `--apply-live` patches the package into the
+running system immediately, while still layering it permanently so it
+survives future updates:
 
 ```
 sudo rpm-ostree install --apply-live python3-gobject python3-cairo gtk3 libayatana-appindicator-gtk3
 ```
 
-**Install on Arch:**
+If you're developing/testing inside an Arch distrobox rather than on the
+host directly, the equivalent packages there are:
 
 ```
 sudo pacman -S python-gobject python-cairo gtk3 libayatana-appindicator
 ```
 
-If `libayatana-appindicator` isn't in your Arch repos, the AUR package
-`libappindicator-gtk3` is the fallback (`yay -S libappindicator-gtk3`).
-
-**Install on Debian/Ubuntu:**
-
-```
-sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1
-```
-
-**Install on openSUSE:**
-
-```
-sudo zypper install python3-gobject python3-cairo typelib-1_0-Gtk-3_0 typelib-1_0-AyatanaAppIndicator3-0_1
-```
+(AUR `libappindicator-gtk3` via `yay` if `libayatana-appindicator` isn't in
+your Arch repos.) Note that testing inside a container only exercises the
+tray/UI logic — the `rpm-ostree`/icon-file checks fall back to
+`distrobox-host-exec` and copied icon files there, since `/usr` isn't
+shared between the container and host.
 
 ## Install
 
