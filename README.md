@@ -73,6 +73,23 @@ it.
 - `bazzite-testing-tray.service` — systemd user service definition
 - `install.sh` — installer
 
+## Workflow
+
+All work happens on `dev`, opened as a pull request into `main` — nothing
+gets pushed to `main` directly. Once a PR is merged, `main` is what gets
+tagged for a release:
+
+```
+git checkout dev
+# ... commit changes ...
+git push origin dev
+gh pr create --base main --head dev --title "..." --body "..."
+# after merging:
+gh pr merge --squash
+git checkout main && git pull
+gh release create vX.Y.Z --generate-notes
+```
+
 ## Releases
 
 Each [release](https://github.com/GhostEagle68/bazzite-testing-notifier/releases)
