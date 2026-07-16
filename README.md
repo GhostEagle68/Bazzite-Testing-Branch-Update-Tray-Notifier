@@ -41,19 +41,6 @@ survives future updates:
 sudo rpm-ostree install --apply-live python3-gobject python3-cairo gtk3 libayatana-appindicator-gtk3
 ```
 
-If you're developing/testing inside an Arch distrobox rather than on the
-host directly, the equivalent packages there are:
-
-```
-sudo pacman -S python-gobject python-cairo gtk3 libayatana-appindicator
-```
-
-(AUR `libappindicator-gtk3` via `yay` if `libayatana-appindicator` isn't in
-your Arch repos.) Note that testing inside a container only exercises the
-tray/UI logic — the `rpm-ostree`/icon-file checks fall back to
-`distrobox-host-exec` and copied icon files there, since `/usr` isn't
-shared between the container and host.
-
 ## Install
 
 ```
