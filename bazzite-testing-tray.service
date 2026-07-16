@@ -1,0 +1,13 @@
+[Unit]
+Description=Bazzite testing branch release tray notifier
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/bazzite-testing-tray.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical-session.target
