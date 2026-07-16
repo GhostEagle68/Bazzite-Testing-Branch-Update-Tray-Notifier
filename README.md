@@ -18,23 +18,54 @@ to keep checking the GitHub releases page by hand.
 
 ## Requirements
 
-Installed via pacman/dnf as applicable to your setup:
+This is Bazzite-specific — it checks your actual booted `rpm-ostree`
+version against ublue-os/bazzite's releases, so it only makes sense on
+Bazzite itself. Needs PyGObject/GTK3 bindings, cairo bindings (for drawing
+the "new release" badge), and libayatana-appindicator (the tray icon
+library). Bazzite's base image already ships most of these —
+`libayatana-appindicator` is usually the only one actually missing.
 
-- `python-gobject` (PyGObject / GTK bindings)
-- `gtk3`
-- `python-cairo`
-- `libayatana-appindicator` (Arch) or `libayatana-appindicator-gtk3` (Fedora/Bazzite)
+**Check what's already installed** (on the Bazzite host):
+
+```
+rpm -q python3-gobject python3-cairo gtk3 libayatana-appindicator-gtk3
+```
+
+Anything printed as "not installed" needs installing.
+
+**Install, without a reboot** — `--apply-live` patches the package into the
+running system immediately, while still layering it permanently so it
+survives future updates:
+
+```
+sudo rpm-ostree install --apply-live python3-gobject python3-cairo gtk3 libayatana-appindicator-gtk3
+```
 
 ## Install
 
+**Option 1: clone the repo**
+
 ```
-git clone <this repo>
+git clone https://github.com/GhostEagle68/bazzite-testing-notifier.git
 cd bazzite-testing-notifier
 ./install.sh
 ```
 
-This copies `bazzite-testing-tray.py` to `~/.local/bin`, installs the
-systemd user service to `~/.config/systemd/user`, and enables it.
+**Option 2: download a release**
+
+Grab the latest release archive from the
+[Releases page](https://github.com/GhostEagle68/bazzite-testing-notifier/releases),
+extract it, then run the same installer:
+
+```
+tar xf bazzite-testing-notifier-*.tar.gz   # or unzip the .zip, whichever you grabbed
+cd bazzite-testing-notifier-*
+./install.sh
+```
+
+Either way, this copies `bazzite-testing-tray.py` to `~/.local/bin`,
+installs the systemd user service to `~/.config/systemd/user`, and enables
+it.
 
 ## Files
 
