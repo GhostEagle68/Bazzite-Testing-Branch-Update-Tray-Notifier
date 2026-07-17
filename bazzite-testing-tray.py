@@ -51,6 +51,7 @@ STATE_FILE = os.path.expanduser("~/.cache/bazzite-testing-latest-tag")
 SEEN_FILE = os.path.expanduser("~/.cache/bazzite-testing-acked-tag")
 API_URL = f"https://api.github.com/repos/{REPO}/releases?per_page=10"
 CHECK_INTERVAL_SECS = int(os.environ.get("CHECK_INTERVAL_SECS", "3600"))  # 1 hour default
+RETRY_INTERVAL_SECS = 60  # shorter wait after a failed check, e.g. network not up yet at login
 
 ICON_IDLE = "bazzite-logo-icon"    # "up to date" / checking
 ICON_NEW = "bazzite-logo"          # new release flagged (overwritten by
@@ -282,7 +283,7 @@ class TrayApp:
                 releases = json.loads(resp.read().decode("utf-8"))
         except (urllib.error.URLError, json.JSONDecodeError, OSError):
             GLib.idle_add(self.set_error_state)
-            return
+            return False
 
         latest_testing_tag = next(
             (r.get("tag_name", "") for r in releases
@@ -292,7 +293,7 @@ class TrayApp:
 
         if not latest_testing_tag:
             GLib.idle_add(self.set_error_state)
-            return
+            return False
 
         # Debug/testing hook: force a fake "latest" tag so the new-release
         # icon/menu can be exercised without waiting for (or faking) an
@@ -319,16 +320,19 @@ class TrayApp:
             is_new = latest_testing_tag != acked
 
         GLib.idle_add(self.set_update_state, latest_testing_tag, is_new)
+        return True
 
     def poll_loop(self):
         while not self.stop_event.is_set():
-            self.check_for_update()
-            self.stop_event.wait(CHECK_INTERVAL_SECS)
+            ok = self.check_for_update()
+            wait_secs = CHECK_INTERVAL_SECS if ok else RETRY_INTERVAL_SECS
+            self.stop_event.wait(wait_secs)
 
     # -- state transitions (must run on the GTK main thread) ----------------
 
     def set_error_state(self):
         self.indicator.set_title("Bazzite Testing Notifier — check failed (network?)")
+        self._rebuild_menu("Check failed, retrying...", tag=None, clickable=False)
         return False
 
     def set_update_state(self, tag, is_new):
