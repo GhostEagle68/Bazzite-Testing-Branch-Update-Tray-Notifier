@@ -97,6 +97,10 @@ on (or faking) a real pending update:
   inside a distrobox container).
 - `CHECK_INTERVAL_SECS=30` — overrides the hourly poll interval.
 
+## License
+
+[MIT](LICENSE)
+
 ## Disclaimer
 
 This project was built collaboratively with Claude (Anthropic's AI),
