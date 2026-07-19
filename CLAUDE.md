@@ -86,8 +86,10 @@ on Bazzite itself).
 
 ## Workflow (see CONTRIBUTING.md for full detail)
 
-- Work happens on `dev`; PRs merge into `main` via squash merge. Nothing is
-  pushed directly to `main`.
+- Work happens on feature branches off `dev`; feature PRs squash-merge into
+  `dev`. Release PRs (`dev` → `main`) use a **merge commit**, not squash —
+  squashing there desyncs the branch histories. Nothing is pushed directly
+  to `main`.
 - Releases are tagged from `main`, but `--generate-notes` alone produces a
   single "release PR" bullet (it only sees PRs merged into `main`, and
   features merge into `dev`). Write the notes by hand from the feature PRs

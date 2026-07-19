@@ -2,19 +2,23 @@
 
 ## Workflow
 
-All work happens on `dev`, opened as a pull request into `main` — nothing
-gets pushed to `main` directly. Once a PR is merged, `main` is what gets
-tagged for a release:
+All work happens on feature branches cut from `dev`, squash-merged into
+`dev` via PR (one clean commit per feature), then `dev` is opened as a
+release PR into `main` — nothing gets pushed to `main` directly.
+
+**Merge strategy matters:** squash is only for feature → `dev` PRs. The
+release PR (`dev` → `main`) must use a **merge commit** — by then every
+commit on `dev` is already a curated one-per-feature commit, and squashing
+again would collapse the release into one blob and permanently desync the
+two branches' histories (the "N commits ahead of main" banner never resets).
 
 ```
-git checkout dev
+git checkout -b feat/thing dev
 # ... commit changes ...
-git push origin dev
-gh pr create --base main --head dev --title "..." --body "..."
-# after merging:
-gh pr merge --squash
+gh pr create --base dev --head feat/thing   # squash-merge this
+gh pr create --base main --head dev         # MERGE-COMMIT this (not squash)
 git checkout main && git pull
-gh release create vX.Y.Z --generate-notes
+gh release create vX.Y.Z --notes-file notes.md
 ```
 
 ## Releases
