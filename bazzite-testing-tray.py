@@ -51,7 +51,9 @@ STATE_FILE = os.path.expanduser("~/.cache/bazzite-testing-latest-tag")
 SEEN_FILE = os.path.expanduser("~/.cache/bazzite-testing-acked-tag")
 API_URL = f"https://api.github.com/repos/{REPO}/releases?per_page=10"
 CHECK_INTERVAL_SECS = int(os.environ.get("CHECK_INTERVAL_SECS", "3600"))  # 1 hour default
-RETRY_INTERVAL_SECS = 60  # shorter wait after a failed check, e.g. network not up yet at login
+RETRY_INTERVAL_SECS = 60  # first retry after a failed check, e.g. network not up yet at login
+                          # (doubles per consecutive failure, capped at CHECK_INTERVAL_SECS,
+                          # so a persistent outage can't hammer GitHub's 60 req/hr limit)
 
 ICON_IDLE = "bazzite-logo-icon"    # "up to date" / checking
 ICON_NEW = "bazzite-logo"          # new release flagged (overwritten by
@@ -341,9 +343,21 @@ class TrayApp:
         return True
 
     def poll_loop(self):
+        failures = 0
         while not self.stop_event.is_set():
             ok = self.check_for_update()
-            wait_secs = CHECK_INTERVAL_SECS if ok else RETRY_INTERVAL_SECS
+            if ok:
+                failures = 0
+                wait_secs = CHECK_INTERVAL_SECS
+            else:
+                failures += 1
+                wait_secs = min(
+                    RETRY_INTERVAL_SECS * 2 ** (failures - 1), CHECK_INTERVAL_SECS
+                )
+                print(
+                    f"check failed ({failures} in a row), retrying in {wait_secs}s",
+                    file=sys.stderr,
+                )
             self.wake_event.wait(wait_secs)
             self.wake_event.clear()
 
