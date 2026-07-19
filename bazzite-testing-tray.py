@@ -234,6 +234,7 @@ class TrayApp:
 
         self.stop_event = threading.Event()
         self.wake_event = threading.Event()  # set by "Check now" to skip the wait
+        self.manual_check = False  # next check was user-requested -> notify result
         self.poll_thread = threading.Thread(target=self.poll_loop, daemon=True)
         self.poll_thread.start()
 
@@ -272,6 +273,7 @@ class TrayApp:
     def on_check_now(self, _item):
         self.indicator.set_title("Bazzite Testing Notifier — checking...")
         self._rebuild_menu("Checking...", tag=None, clickable=False)
+        self.manual_check = True
         self.wake_event.set()
 
     def on_open_release(self, _item, tag):
@@ -286,6 +288,11 @@ class TrayApp:
     # -- polling ---------------------------------------------------------
 
     def check_for_update(self):
+        # Consume the manual flag up front: only a user-clicked "Check now"
+        # gets a desktop notification with the result, hourly polls stay quiet.
+        manual = self.manual_check
+        self.manual_check = False
+
         req = urllib.request.Request(
             API_URL, headers={"User-Agent": "bazzite-testing-notifier"}
         )
@@ -293,7 +300,7 @@ class TrayApp:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 releases = json.loads(resp.read().decode("utf-8"))
         except (urllib.error.URLError, json.JSONDecodeError, OSError):
-            GLib.idle_add(self.set_error_state)
+            GLib.idle_add(self.set_error_state, manual)
             return False
 
         latest_testing_tag = next(
@@ -303,7 +310,7 @@ class TrayApp:
         )
 
         if not latest_testing_tag:
-            GLib.idle_add(self.set_error_state)
+            GLib.idle_add(self.set_error_state, manual)
             return False
 
         # Debug/testing hook: force a fake "latest" tag so the new-release
@@ -330,7 +337,7 @@ class TrayApp:
                     acked = f.read().strip()
             is_new = latest_testing_tag != acked
 
-        GLib.idle_add(self.set_update_state, latest_testing_tag, is_new)
+        GLib.idle_add(self.set_update_state, latest_testing_tag, is_new, manual)
         return True
 
     def poll_loop(self):
@@ -342,12 +349,23 @@ class TrayApp:
 
     # -- state transitions (must run on the GTK main thread) ----------------
 
-    def set_error_state(self):
+    def _notify(self, message):
+        try:
+            subprocess.Popen(
+                ["notify-send", "--app-name=Bazzite Testing Notifier",
+                 f"--icon={ICON_IDLE}", "Bazzite Testing Notifier", message]
+            )
+        except OSError:
+            pass  # notify-send missing -- the menu/title still show the state
+
+    def set_error_state(self, manual=False):
         self.indicator.set_title("Bazzite Testing Notifier — check failed (network?)")
         self._rebuild_menu("Check failed, retrying...", tag=None, clickable=False)
+        if manual:
+            self._notify("Check failed (network?) — will retry.")
         return False
 
-    def set_update_state(self, tag, is_new):
+    def set_update_state(self, tag, is_new, manual=False):
         icon = ICON_NEW if is_new else ICON_IDLE
         self.indicator.set_icon_full(icon, "Bazzite Testing Notifier")
         if is_new:
@@ -356,6 +374,8 @@ class TrayApp:
         else:
             self.indicator.set_title(f"Bazzite Testing Notifier — up to date ({tag})")
             self._rebuild_menu(f"Up to date: {tag}", tag, clickable=True)
+        if manual:
+            self._notify(f"New release: {tag}" if is_new else f"Up to date ({tag})")
         return False
 
 
