@@ -65,11 +65,24 @@ Either way, this copies `bazzite-testing-tray.py` to `~/.local/bin`,
 installs the systemd user service to `~/.config/systemd/user`, and enables
 it.
 
+## Uninstall
+
+From the same directory:
+
+```
+./uninstall.sh
+```
+
+Stops and disables the service, then removes the script, service file, and
+the icon/state files the app created. (Any packages you installed under
+Requirements are left alone.)
+
 ## Files
 
 - `bazzite-testing-tray.py` — the tray application itself
 - `bazzite-testing-tray.service` — systemd user service definition
 - `install.sh` — installer
+- `uninstall.sh` — uninstaller
 
 ## Development / testing hooks
 
@@ -83,6 +96,10 @@ on (or faking) a real pending update:
   testing somewhere `/usr/share/icons` isn't the real host filesystem, e.g.
   inside a distrobox container).
 - `CHECK_INTERVAL_SECS=30` — overrides the hourly poll interval.
+
+## License
+
+[MIT](LICENSE)
 
 ## Disclaimer
 

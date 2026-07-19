@@ -49,6 +49,13 @@ on Bazzite itself).
   replacement for a prior yad-based script whose tray mode broke silently
   under KDE Plasma Wayland — see the module docstring for context. Don't
   reintroduce `GtkStatusIcon` or a yad-based approach.
+  - Foreground runs print `libayatana-appindicator is deprecated. Please use
+    libayatana-appindicator-glib in newly written code.` This is harmless and
+    expected: as of Fedora 44, `libayatana-appindicator-glib` is not packaged
+    at all, so there is nothing to migrate to yet. Don't try to suppress it.
+    When Fedora ships the glib variant, port by adding its namespace as a
+    third candidate in the existing `gi.require_version` try/except fallback
+    chain (the API is near-identical).
 - **Version-of-truth for "is an update pending"**: `get_current_system_version()`
   shells out to `rpm-ostree status --json` (or `distrobox-host-exec rpm-ostree
   status --json` as a container-dev fallback) to read the actually-booted
