@@ -233,6 +233,7 @@ class TrayApp:
         self.indicator.set_menu(self.menu)
 
         self.stop_event = threading.Event()
+        self.wake_event = threading.Event()  # set by "Check now" to skip the wait
         self.poll_thread = threading.Thread(target=self.poll_loop, daemon=True)
         self.poll_thread.start()
 
@@ -251,6 +252,10 @@ class TrayApp:
 
         self.menu.append(Gtk.SeparatorMenuItem())
 
+        check_item = Gtk.MenuItem(label="Check now")
+        check_item.connect("activate", self.on_check_now)
+        self.menu.append(check_item)
+
         quit_item = Gtk.MenuItem(label="Quit")
         quit_item.connect("activate", self.on_quit)
         self.menu.append(quit_item)
@@ -261,7 +266,13 @@ class TrayApp:
 
     def on_quit(self, _item):
         self.stop_event.set()
+        self.wake_event.set()
         Gtk.main_quit()
+
+    def on_check_now(self, _item):
+        self.indicator.set_title("Bazzite Testing Notifier — checking...")
+        self._rebuild_menu("Checking...", tag=None, clickable=False)
+        self.wake_event.set()
 
     def on_open_release(self, _item, tag):
         subprocess.Popen(["xdg-open", release_url_for_tag(tag)])
@@ -326,7 +337,8 @@ class TrayApp:
         while not self.stop_event.is_set():
             ok = self.check_for_update()
             wait_secs = CHECK_INTERVAL_SECS if ok else RETRY_INTERVAL_SECS
-            self.stop_event.wait(wait_secs)
+            self.wake_event.wait(wait_secs)
+            self.wake_event.clear()
 
     # -- state transitions (must run on the GTK main thread) ----------------
 
