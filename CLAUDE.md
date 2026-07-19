@@ -88,6 +88,10 @@ on Bazzite itself).
 
 - Work happens on `dev`; PRs merge into `main` via squash merge. Nothing is
   pushed directly to `main`.
-- Releases are tagged from `main` with `gh release create vX.Y.Z
-  --generate-notes` — notes are auto-generated from PR/commit titles, so
-  there's no changelog file to maintain by hand; write clear PR titles.
+- Releases are tagged from `main`, but `--generate-notes` alone produces a
+  single "release PR" bullet (it only sees PRs merged into `main`, and
+  features merge into `dev`). Write the notes by hand from the feature PRs
+  merged into `dev` since the last tag — grouped bullets with #NN links plus
+  a `compare/vPREV...vX.Y.Z` link — and pass them via `--notes-file`. See
+  CONTRIBUTING.md for the exact commands. No changelog file to maintain;
+  clear PR titles are the source material.

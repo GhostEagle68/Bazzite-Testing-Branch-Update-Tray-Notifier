@@ -20,15 +20,21 @@ gh release create vX.Y.Z --generate-notes
 ## Releases
 
 Each [release](https://github.com/GhostEagle68/bazzite-testing-notifier/releases)
-is tagged from `main` (e.g. `v0.1.0`) with auto-generated release notes
-summarizing what changed since the previous tag:
+is tagged from `main` (e.g. `v0.1.0`). **Don't use `--generate-notes` alone**:
+it only lists PRs merged into `main`, and since feature PRs target `dev`, the
+result is a single "release PR" bullet (this is what made v1.1.0's notes look
+empty at first). Instead, write the notes from the feature PRs that landed on
+`dev` since the last release:
 
 ```
 git checkout main
 git pull
-gh release create v0.1.0 --generate-notes
+# list what went into this release:
+gh pr list --base dev --state merged --limit 20
+gh release create vX.Y.Z --notes-file notes.md   # bullets per feature PR, with #NN refs
 ```
 
-`--generate-notes` builds the changelog from merged PR titles/commits since
-the last tag automatically, so there's no changelog file to hand-maintain —
-just write clear commit/PR titles going in.
+Group bullets under headings (e.g. "New features" / "Fixes" / "Other"), link
+each to its PR number, and end with a Full Changelog compare link
+(`.../compare/vPREV...vX.Y.Z`). There's still no changelog file to
+hand-maintain — clear PR titles remain the source material.
